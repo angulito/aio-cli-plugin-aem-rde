@@ -170,13 +170,11 @@ module.exports = {
         common: true,
       }),
       programId: Flags.string({
-        char: 'p',
         description:
           "the programId. If not specified, defaults to 'cloudmanager_programId' config value",
         common: true,
       }),
       environmentId: Flags.string({
-        char: 'e',
         description:
           "the environmentId. If not specified, defaults to 'cloudmanager_environmentid' config value",
         common: true,
