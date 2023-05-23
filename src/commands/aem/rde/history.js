@@ -40,7 +40,7 @@ class ChangesCommand extends BaseCommand {
           `Invalid update ID "${args.id}". Please use a positive update ID number as the input.`
         );
       } else {
-        await this.withCloudSdk((cloudSdkAPI) =>
+        await this.withCloudSdk(flags, (cloudSdkAPI) =>
           rdeUtils.loadUpdateHistory(cloudSdkAPI, args.id, cli, (done, text) =>
             done ? spinner.stop() : spinner.start(text)
           )

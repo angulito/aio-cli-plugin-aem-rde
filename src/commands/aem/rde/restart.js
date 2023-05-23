@@ -16,7 +16,7 @@ const spinner = require('ora')();
 
 class RestartCommand extends BaseCommand {
   async run() {
-    const { args, flags } = await this.parse(RestartCommand);
+    const { flags } = await this.parse(RestartCommand);
     try {
       spinner.start('restarting environment');
       await this.withCloudSdk(flags, (cloudSdkAPI) => {

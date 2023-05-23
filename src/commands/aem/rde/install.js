@@ -181,7 +181,7 @@ class DeployCommand extends BaseCommand {
         );
       }).finally(() => spinner.stop());
 
-      await this.withCloudSdk((cloudSdkAPI) =>
+      await this.withCloudSdk(flags, (cloudSdkAPI) =>
         loadUpdateHistory(cloudSdkAPI, change.updateId, cli, (done, text) =>
           done ? spinner.stop() : spinner.start(text)
         )

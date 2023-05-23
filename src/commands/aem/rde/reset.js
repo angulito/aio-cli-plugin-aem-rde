@@ -16,12 +16,12 @@ const spinner = require('ora')();
 
 class ResetCommand extends BaseCommand {
   async run() {
-    const { args, flags } = await this.parse(ResetCommand);
+    const { flags } = await this.parse(ResetCommand);
     try {
-      spinner.start('resetting environment');
       await this.withCloudSdk(flags, (cloudSdkAPI) => {
         cli.log(`Reset ${cloudSdkAPI.getEnvironmentLabel()}`);
-        cloudSdkAPI.resetEnv();
+        spinner.start('resetting environment');
+        return cloudSdkAPI.resetEnv();
       });
       spinner.stop();
       cli.log(`Environment reset.`);

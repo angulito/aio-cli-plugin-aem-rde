@@ -11,18 +11,26 @@
  */
 'use strict';
 
-const { BaseCommand, cli, commonFlags } = require('../../../lib/base-command');
+const { BaseCommand, cli, commonFlags, Flags } = require('../../../lib/base-command');
 const { loadAllArtifacts, groupArtifacts } = require('../../../lib/rde-utils');
 const spinner = require('ora')();
 
 class StatusCommand extends BaseCommand {
   async run() {
-    const { args, flags } = await this.parse(StatusCommand);
+    const { flags } = await this.parse(StatusCommand);
+    if (flags.json) {
+      await this.printAsJson(flags);
+    } else {
+      await this.printAsText(flags);
+    }
+  }
+
+  async printAsText(flags) {
     try {
-      spinner.start('retrieving environment status information');
       const status = await this.withCloudSdk(flags, (cloudSdkAPI) => {
         cli.log(`Info for ${cloudSdkAPI.getEnvironmentLabel()}`);
-        loadAllArtifacts(cloudSdkAPI);
+        spinner.start('retrieving environment status information');
+        return loadAllArtifacts(cloudSdkAPI);
       });
       spinner.stop();
       cli.log(`Environment: ${status.status}`);
@@ -58,6 +66,42 @@ class StatusCommand extends BaseCommand {
       cli.log(err);
     }
   }
+
+  async printAsJson(flags) {
+    try {
+      let programId, environmentId;
+      const status = await this.withCloudSdk(flags, (cloudSdkAPI) => {
+        programId = cloudSdkAPI._programId;
+        environmentId = cloudSdkAPI._environmentId;
+        return loadAllArtifacts(cloudSdkAPI);
+      });
+
+      const grouped = groupArtifacts(status.items);
+
+      const result = {
+        programId: programId,
+        environmentId: environmentId,
+        status: status.status,
+      };
+
+      if (status.error) {
+        result.statusText = status.BaseCommand;
+      } else {
+        result.author = {
+          osgiBundles: grouped.author['osgi-bundle'],
+          osgiConfigs: grouped.publish['osgi-config'],
+        };
+        result.publish = {
+          osgiBundles: grouped.author['osgi-bundle'],
+          osgiConfigs: grouped.publish['osgi-config'],
+        };
+      }
+
+      cli.log(JSON.stringify(result));
+    } catch (err) {
+      cli.log(err);
+    }
+  }
 }
 
 Object.assign(StatusCommand, {
@@ -66,7 +110,16 @@ Object.assign(StatusCommand, {
   args: [],
   flags: {
     ...commonFlags.global,
+    json: Flags.boolean({
+      char: 'j',
+      hidden: false,
+      description: 'output as json',
+    }),
   },
+  usage: [
+    'status              # output as textual content',
+    'status --json       # output as json object',
+  ],
   aliases: [],
 });
 

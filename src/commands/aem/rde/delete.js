@@ -51,7 +51,7 @@ class DeleteCommand extends BaseCommand {
         const change = await this.withCloudSdk(flags, (cloudSdkAPI) =>
           cloudSdkAPI.delete(artifact.id, flags.force)
         );
-        await this.withCloudSdk((cloudSdkAPI) =>
+        await this.withCloudSdk(flags, (cloudSdkAPI) =>
           loadUpdateHistory(cloudSdkAPI, change.updateId, cli, (done, text) =>
             done ? spinner.stop() : spinner.start(text)
           )
