@@ -18,10 +18,10 @@ class RestartCommand extends BaseCommand {
   async run() {
     const { flags } = await this.parse(RestartCommand);
     try {
-      spinner.start('restarting environment');
       await this.withCloudSdk(flags, (cloudSdkAPI) => {
         cli.log(`Restart ${cloudSdkAPI.getEnvironmentLabel()}`);
-        cloudSdkAPI.restartEnv();
+        spinner.start('restarting environment');
+        return cloudSdkAPI.restartEnv();
       });
       spinner.stop();
       cli.log(`Environment restarted.`);
